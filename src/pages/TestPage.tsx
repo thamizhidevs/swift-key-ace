@@ -1,15 +1,19 @@
-
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import TypingText from '@/components/typing/TypingText';
 import ResultsDisplay from '@/components/typing/ResultsDisplay';
+import KeyboardVisualizer from '@/components/typing/KeyboardVisualizer';
+import LevelSelector, { LevelType } from '@/components/typing/LevelSelector';
 import { getRandomTypingText } from '@/utils/typingTexts';
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { 
-  Clock, 
+  keyboard,
   PlayCircle,
   RotateCcw,
   Settings,
+  Moon,
+  Sun
 } from 'lucide-react';
 import {
   Select,
@@ -32,7 +36,15 @@ const TestPage = () => {
   const [isActive, setIsActive] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [results, setResults] = useState<TestResults | null>(null);
-  const [testDuration, setTestDuration] = useState<number>(60); // Default 1 minute
+  const [testDuration, setTestDuration] = useState<number>(60);
+  const [currentKey, setCurrentKey] = useState('');
+  const [currentLevel, setCurrentLevel] = useState<LevelType>('letters');
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  
+  useEffect(() => {
+    // Update body class for theme
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, [isDarkMode]);
   
   // Generate a random typing text on initial load
   useEffect(() => {
@@ -93,19 +105,60 @@ const TestPage = () => {
     }
   };
   
+  const handleKeyPress = (key: string) => {
+    setCurrentKey(key);
+  };
+  
+  const getTextForLevel = (level: LevelType): string => {
+    switch (level) {
+      case 'letters':
+        return 'asdfjkl; asdfjkl; asdfjkl; asdfjkl;';
+      case 'words':
+        return 'the quick brown fox jumps over the lazy dog';
+      case 'game':
+        return 'Type as fast as you can: "Race against time!"';
+      default:
+        return getRandomTypingText();
+    }
+  };
+  
+  const handleLevelChange = (level: LevelType) => {
+    setCurrentLevel(level);
+    setTypingText(getTextForLevel(level));
+    setIsActive(false);
+    setIsComplete(false);
+    setResults(null);
+  };
+
   return (
     <Layout>
       <ParticleBackground />
       
       <div className="container max-w-4xl py-10 px-4 md:py-16 md:px-6">
         <div className="space-y-8">
-          {/* Page Header */}
-          <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Typing Test</h1>
-            <p className="text-muted-foreground">
-              Test your typing speed and accuracy with our timed typing test.
-            </p>
+          {/* Page Header with Theme Toggle */}
+          <div className="flex justify-between items-center">
+            <div className="text-left">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">Typing Test</h1>
+              <p className="text-muted-foreground">
+                Test your typing speed and accuracy with our interactive typing test.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sun className="h-4 w-4" />
+              <Switch
+                checked={isDarkMode}
+                onCheckedChange={setIsDarkMode}
+              />
+              <Moon className="h-4 w-4" />
+            </div>
           </div>
+          
+          {/* Level Selector */}
+          <LevelSelector
+            currentLevel={currentLevel}
+            onLevelChange={handleLevelChange}
+          />
           
           {/* Test Settings */}
           {!isActive && !isComplete && (
@@ -169,7 +222,11 @@ const TestPage = () => {
                 isActive={isActive}
                 onComplete={handleTestComplete}
                 duration={testDuration}
+                onKeyPress={handleKeyPress}
               />
+              
+              {/* Keyboard Visualizer */}
+              <KeyboardVisualizer currentKey={currentKey} />
               
               {!isActive && !isComplete && (
                 <div className="flex justify-center mt-8">
