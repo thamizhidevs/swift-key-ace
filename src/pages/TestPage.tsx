@@ -40,24 +40,41 @@ const TestPage = () => {
   const [results, setResults] = useState<TestResults | null>(null);
   const [testDuration, setTestDuration] = useState<number>(60);
   const [currentKey, setCurrentKey] = useState('');
+  const [nextKey, setNextKey] = useState('');
   const [currentLevel, setCurrentLevel] = useState<LevelType>('letters');
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Check if there's a saved preference, otherwise default to system preference
+    const savedMode = localStorage.getItem('darkMode');
+    if (savedMode !== null) {
+      return savedMode === 'true';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   
   // Apply dark mode setting
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
+    localStorage.setItem('darkMode', isDarkMode.toString());
   }, [isDarkMode]);
   
   // Initialize typing text
   useEffect(() => {
-    setTypingText(getTextForLevel(currentLevel));
+    const text = getTextForLevel(currentLevel);
+    setTypingText(text);
+    if (text.length > 0) {
+      setNextKey(text[0]);
+    }
   }, [currentLevel]);
   
   const handleStartTest = () => {
     setIsActive(true);
     setIsComplete(false);
     setResults(null);
-    setTypingText(getTextForLevel(currentLevel));
+    const text = getTextForLevel(currentLevel);
+    setTypingText(text);
+    if (text.length > 0) {
+      setNextKey(text[0]);
+    }
     
     toast.info(`${testDuration} second test started. Good luck!`);
   };
@@ -101,6 +118,15 @@ const TestPage = () => {
   
   const handleKeyPress = (key: string) => {
     setCurrentKey(key);
+    
+    // Update next key based on typing progress
+    const text = typingText;
+    const currentIndex = text.indexOf(key) + 1;
+    if (currentIndex < text.length) {
+      setNextKey(text[currentIndex]);
+    } else {
+      setNextKey('');
+    }
   };
   
   const getTextForLevel = (level: LevelType): string => {
@@ -108,11 +134,11 @@ const TestPage = () => {
       case 'letters':
         return 'asdf jkl; asdf jkl; asdf jkl; asdf jkl; qwer uiop qwer uiop qwer uiop zxcv bnm, zxcv bnm,';
       case 'words':
-        return 'the quick brown fox jumps over the lazy dog. pack my box with five dozen liquor jugs. how vexingly quick daft zebras jump!';
+        return 'the quick brown fox jumps over the lazy dog pack my box with five dozen liquor jugs how vexingly quick daft zebras jump';
       case 'sentences':
         return getRandomTypingText();
       case 'game':
-        return 'Type as fast as you can: "The five boxing wizards jump quickly. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!"';
+        return 'Type each word as it appears: speed quick jump typing master keyboard faster accuracy practice focus';
       default:
         return getRandomTypingText();
     }
@@ -120,10 +146,85 @@ const TestPage = () => {
   
   const handleLevelChange = (level: LevelType) => {
     setCurrentLevel(level);
-    setTypingText(getTextForLevel(level));
+    const newText = getTextForLevel(level);
+    setTypingText(newText);
+    if (newText.length > 0) {
+      setNextKey(newText[0]);
+    }
     setIsActive(false);
     setIsComplete(false);
     setResults(null);
+  };
+  
+  // Render appropriate content based on level
+  const renderLevelContent = () => {
+    if (isActive || (!isActive && !isComplete)) {
+      return (
+        <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6">
+          {currentLevel === 'game' && !isActive && (
+            <div className="mb-6 p-4 bg-accent/10 rounded-lg border border-accent/30 animate-fade-in">
+              <h3 className="font-medium text-lg mb-2">Game Mode Instructions</h3>
+              <p className="text-sm text-muted-foreground">
+                Words will float across the screen. Type each word correctly as it appears to earn points!
+                Click Start Test to begin the game.
+              </p>
+            </div>
+          )}
+          
+          <TypingText 
+            text={typingText}
+            isActive={isActive}
+            onComplete={handleTestComplete}
+            duration={testDuration}
+            onKeyPress={handleKeyPress}
+          />
+          
+          <KeyboardVisualizer currentKey={currentKey} nextKey={nextKey} />
+          
+          {!isActive && !isComplete && (
+            <div className="flex justify-center mt-8">
+              <Button 
+                onClick={handleStartTest}
+                size="lg"
+                className="space-x-2 btn-glow"
+              >
+                <PlayCircle className="h-5 w-5" />
+                <span>Start Test</span>
+              </Button>
+            </div>
+          )}
+          
+          {isActive && (
+            <div className="flex justify-center mt-8">
+              <Button 
+                onClick={() => setIsActive(false)}
+                variant="outline"
+                className="space-x-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span>Cancel</span>
+              </Button>
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    if (isComplete && results) {
+      return (
+        <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6">
+          <ResultsDisplay 
+            wpm={results.wpm}
+            accuracy={results.accuracy}
+            errors={results.errors}
+            onRetry={handleRestartTest}
+            onShare={handleShareResults}
+          />
+        </div>
+      );
+    }
+    
+    return null;
   };
 
   return (
@@ -207,57 +308,7 @@ const TestPage = () => {
             </div>
           )}
           
-          {(isActive || (!isActive && !isComplete)) && (
-            <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6">
-              <TypingText 
-                text={typingText}
-                isActive={isActive}
-                onComplete={handleTestComplete}
-                duration={testDuration}
-                onKeyPress={handleKeyPress}
-              />
-              
-              <KeyboardVisualizer currentKey={currentKey} />
-              
-              {!isActive && !isComplete && (
-                <div className="flex justify-center mt-8">
-                  <Button 
-                    onClick={handleStartTest}
-                    size="lg"
-                    className="space-x-2 btn-glow"
-                  >
-                    <PlayCircle className="h-5 w-5" />
-                    <span>Start Test</span>
-                  </Button>
-                </div>
-              )}
-              
-              {isActive && (
-                <div className="flex justify-center mt-8">
-                  <Button 
-                    onClick={() => setIsActive(false)}
-                    variant="outline"
-                    className="space-x-2"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    <span>Cancel</span>
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {isComplete && results && (
-            <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6">
-              <ResultsDisplay 
-                wpm={results.wpm}
-                accuracy={results.accuracy}
-                errors={results.errors}
-                onRetry={handleRestartTest}
-                onShare={handleShareResults}
-              />
-            </div>
-          )}
+          {renderLevelContent()}
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-card/30 backdrop-blur-sm border border-muted/20 rounded-lg p-4">

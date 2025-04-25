@@ -36,6 +36,12 @@
     --ring: 224 76.3% 48%;
 
     --radius: 0.5rem;
+    
+    /* Typing specific colors */
+    --typing-correct: 142 69% 58%;
+    --typing-incorrect: 0 84.2% 60.2%;
+    --typing-highlight: 196 90% 60% / 0.3;
+    --typing-cursor: 196 100% 50%;
   }
 
   .dark {
@@ -66,6 +72,12 @@
     --border: 217 33% 25%;
     --input: 217 33% 25%;
     --ring: 224 76.3% 48%;
+    
+    /* Typing specific colors in dark mode */
+    --typing-correct: 142 69% 58%;
+    --typing-incorrect: 0 84.2% 60.2%;
+    --typing-highlight: 196 90% 60% / 0.3;
+    --typing-cursor: 196 100% 50%;
   }
 
   * {
@@ -116,8 +128,44 @@
   }
 
   /* Key press animation */
-  .key-press {
-    @apply animate-key-press;
+  @keyframes key-press {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(2px); }
+    100% { transform: translateY(0); }
+  }
+  
+  .animate-key-press {
+    animation: key-press 0.2s ease-in-out;
+  }
+  
+  /* Caret blink animation */
+  @keyframes caret-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  .animate-caret-blink {
+    animation: caret-blink 1s infinite;
+  }
+  
+  /* Fade in animation */
+  @keyframes fade-in {
+    0% { opacity: 0; transform: translateY(5px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+  
+  /* Glow pulse animation */
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 8px 2px rgba(var(--primary) / 0.2); }
+    50% { box-shadow: 0 0 12px 4px rgba(var(--primary) / 0.4); }
+  }
+  
+  .animate-glow-pulse {
+    animation: glow-pulse 2s infinite;
   }
 
   /* Button hover effect */
@@ -156,6 +204,27 @@
   .animate-finger-indicator {
     animation: finger-pulse 1s infinite;
   }
+  
+  /* Game mode animations */
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  /* Word reveal animation */
+  @keyframes word-reveal {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  
+  .animate-word-reveal {
+    animation: word-reveal 0.5s ease-out;
+  }
 }
 
 @layer components {
@@ -179,5 +248,16 @@
     background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 20px 20px;
+  }
+  
+  .game-container {
+    @apply relative overflow-hidden rounded-lg bg-card/30 p-6;
+    min-height: 200px;
+  }
+  
+  .game-target {
+    @apply absolute flex items-center justify-center px-4 py-2 bg-primary/20 
+           border border-primary/40 rounded-lg text-foreground font-mono
+           transition-all duration-300 ease-in-out animate-float;
   }
 }

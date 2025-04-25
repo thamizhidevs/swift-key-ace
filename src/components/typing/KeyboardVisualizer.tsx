@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Keyboard } from 'lucide-react';
 
 interface KeyProps {
@@ -7,20 +7,22 @@ interface KeyProps {
   isActive: boolean;
   finger: string;
   fingerColor: string;
+  isNextKey?: boolean;
 }
 
-const Key = ({ letter, isActive, finger, fingerColor }: KeyProps) => (
+const Key = ({ letter, isActive, finger, fingerColor, isNextKey }: KeyProps) => (
   <div 
     className={`
       relative p-3 rounded-lg border min-w-[40px] min-h-[40px] flex items-center justify-center
-      ${isActive ? 'bg-primary text-primary-foreground border-primary shadow-md animate-key-press' : 'bg-card border-muted'}
+      ${isActive ? 'bg-primary text-primary-foreground border-primary shadow-md animate-key-press' : 
+        isNextKey ? 'bg-accent/30 text-accent-foreground border-accent' : 'bg-card border-muted'}
       transition-all duration-200
     `}
   >
     <span className="text-sm font-mono">{letter}</span>
-    {isActive && (
+    {(isActive || isNextKey) && (
       <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10">
-        <div className={`px-2 py-1 rounded-md text-xs font-medium ${fingerColor} animate-fade-in shadow-lg`}>
+        <div className={`px-2 py-1 rounded-md text-xs font-medium ${fingerColor} ${isNextKey ? 'animate-finger-indicator' : 'animate-fade-in'} shadow-lg`}>
           {finger}
         </div>
       </div>
@@ -28,7 +30,7 @@ const Key = ({ letter, isActive, finger, fingerColor }: KeyProps) => (
   </div>
 );
 
-const KeyboardVisualizer = ({ currentKey }: { currentKey: string }) => {
+const KeyboardVisualizer = ({ currentKey, nextKey }: { currentKey: string, nextKey?: string }) => {
   // Define the keyboard layout to match a real keyboard
   // First row: Q to P
   // Second row: A to L
@@ -93,6 +95,7 @@ const KeyboardVisualizer = ({ currentKey }: { currentKey: string }) => {
                 key={key.letter}
                 letter={key.letter}
                 isActive={currentKey.toLowerCase() === key.letter}
+                isNextKey={nextKey && nextKey.toLowerCase() === key.letter}
                 finger={key.finger}
                 fingerColor={key.color}
               />
@@ -103,7 +106,8 @@ const KeyboardVisualizer = ({ currentKey }: { currentKey: string }) => {
         <div className="mt-4 flex justify-center">
           <div className={`
             px-16 py-2 rounded-md border
-            ${currentKey === ' ' ? 'bg-primary text-primary-foreground border-primary animate-key-press' : 'bg-card border-muted'}
+            ${currentKey === ' ' ? 'bg-primary text-primary-foreground border-primary animate-key-press' : 
+              nextKey === ' ' ? 'bg-accent/30 text-accent-foreground border-accent' : 'bg-card border-muted'}
             transition-all duration-200
           `}>
             <span className="text-sm text-muted-foreground">Space Bar - Both Thumbs</span>
