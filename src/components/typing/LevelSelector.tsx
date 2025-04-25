@@ -7,6 +7,12 @@ import {
   FileText,
   Gamepad2
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type LevelType = 'letters' | 'words' | 'sentences' | 'game';
 
@@ -39,23 +45,32 @@ const LevelSelector = ({ currentLevel, onLevelChange }: LevelSelectorProps) => {
       type: 'game' as LevelType, 
       label: 'Game Mode', 
       icon: <Gamepad2 className="h-4 w-4 mr-2" />,
-      description: 'Fun typing challenges'
+      description: 'Fun typing challenges and games'
     }
   ];
 
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
-        {levels.map(({ type, label, icon }) => (
-          <Button
-            key={type}
-            variant={currentLevel === type ? "default" : "outline"}
-            onClick={() => onLevelChange(type)}
-            className="flex-1 min-w-[120px] flex items-center justify-center"
-          >
-            {icon}
-            <span>{label}</span>
-          </Button>
+        {levels.map(({ type, label, icon, description }) => (
+          <TooltipProvider key={type}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  key={type}
+                  variant={currentLevel === type ? "default" : "outline"}
+                  onClick={() => onLevelChange(type)}
+                  className="flex-1 min-w-[120px] flex items-center justify-center"
+                >
+                  {icon}
+                  <span>{label}</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{description}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ))}
       </div>
       <div className="text-sm text-muted-foreground text-center">

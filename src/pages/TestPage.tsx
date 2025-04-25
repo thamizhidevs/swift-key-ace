@@ -5,17 +5,19 @@ import TypingText from '@/components/typing/TypingText';
 import ResultsDisplay from '@/components/typing/ResultsDisplay';
 import KeyboardVisualizer from '@/components/typing/KeyboardVisualizer';
 import LevelSelector, { LevelType } from '@/components/typing/LevelSelector';
+import GameSelector from '@/components/typing/GameSelector';
+import TypeGame from '@/components/typing/TypeGame';
 import { getRandomTypingText } from '@/utils/typingTexts';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { 
-  Keyboard,
   PlayCircle,
   RotateCcw,
   Settings,
   Moon,
   Sun,
-  Clock
+  Clock,
+  Keyboard
 } from 'lucide-react';
 import {
   Select,
@@ -42,6 +44,7 @@ const TestPage = () => {
   const [currentKey, setCurrentKey] = useState('');
   const [nextKey, setNextKey] = useState('');
   const [currentLevel, setCurrentLevel] = useState<LevelType>('letters');
+  const [selectedGame, setSelectedGame] = useState('typingRace');
   const [isDarkMode, setIsDarkMode] = useState(() => {
     // Check if there's a saved preference, otherwise default to system preference
     const savedMode = localStorage.getItem('darkMode');
@@ -158,19 +161,31 @@ const TestPage = () => {
   
   // Render appropriate content based on level
   const renderLevelContent = () => {
+    // Show game modes if game level is selected
+    if (currentLevel === 'game') {
+      return (
+        <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6 animate-fade-in">
+          <GameSelector 
+            selectedGame={selectedGame}
+            onSelectGame={setSelectedGame}
+          />
+          
+          <div className="mt-6">
+            <TypeGame 
+              gameMode={selectedGame}
+              onComplete={handleTestComplete}
+              isActive={isActive}
+              setIsActive={setIsActive}
+            />
+          </div>
+        </div>
+      );
+    }
+    
+    // Regular typing test for other levels
     if (isActive || (!isActive && !isComplete)) {
       return (
         <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6">
-          {currentLevel === 'game' && !isActive && (
-            <div className="mb-6 p-4 bg-accent/10 rounded-lg border border-accent/30 animate-fade-in">
-              <h3 className="font-medium text-lg mb-2">Game Mode Instructions</h3>
-              <p className="text-sm text-muted-foreground">
-                Words will float across the screen. Type each word correctly as it appears to earn points!
-                Click Start Test to begin the game.
-              </p>
-            </div>
-          )}
-          
           <TypingText 
             text={typingText}
             isActive={isActive}
@@ -255,7 +270,7 @@ const TestPage = () => {
             onLevelChange={handleLevelChange}
           />
           
-          {!isActive && !isComplete && (
+          {!isActive && !isComplete && currentLevel !== 'game' && (
             <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6 animate-fade-in">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex items-center space-x-4">
