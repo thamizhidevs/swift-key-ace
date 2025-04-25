@@ -8,12 +8,13 @@ import { getRandomTypingText } from '@/utils/typingTexts';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { 
-  keyboard,
+  Keyboard,
   PlayCircle,
   RotateCcw,
   Settings,
   Moon,
-  Sun
+  Sun,
+  Clock
 } from 'lucide-react';
 import {
   Select,
@@ -42,27 +43,22 @@ const TestPage = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   
   useEffect(() => {
-    // Update body class for theme
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
   
-  // Generate a random typing text on initial load
   useEffect(() => {
     setTypingText(getRandomTypingText());
   }, []);
   
-  // Handle test start
   const handleStartTest = () => {
     setIsActive(true);
     setIsComplete(false);
     setResults(null);
-    // Get a new text for each test
     setTypingText(getRandomTypingText());
     
     toast.info(`${testDuration} second test started. Good luck!`);
   };
   
-  // Handle test restart
   const handleRestartTest = () => {
     setIsActive(false);
     setIsComplete(false);
@@ -72,23 +68,19 @@ const TestPage = () => {
     }, 300);
   };
   
-  // Handle test completion
   const handleTestComplete = (stats: TestResults) => {
     setIsActive(false);
     setIsComplete(true);
     setResults(stats);
     
-    // Show toast with results
     toast.success(`Test complete! ${stats.wpm} WPM with ${stats.accuracy}% accuracy`);
   };
   
-  // Handle sharing results
   const handleShareResults = () => {
     if (!results) return;
     
     const shareText = `I just scored ${results.wpm} WPM with ${results.accuracy}% accuracy on SwiftKeyAce typing test! Try to beat my score! #SwiftKeyAce #TypingTest`;
     
-    // Use Web Share API if available
     if (navigator.share) {
       navigator.share({
         title: 'My SwiftKeyAce Typing Test Results',
@@ -98,7 +90,6 @@ const TestPage = () => {
       .then(() => toast.info('Shared successfully'))
       .catch((error) => console.log('Error sharing:', error));
     } else {
-      // Fallback to clipboard copy
       navigator.clipboard.writeText(shareText)
         .then(() => toast.info('Results copied to clipboard!'))
         .catch(() => toast.error('Failed to copy results'));
@@ -136,7 +127,6 @@ const TestPage = () => {
       
       <div className="container max-w-4xl py-10 px-4 md:py-16 md:px-6">
         <div className="space-y-8">
-          {/* Page Header with Theme Toggle */}
           <div className="flex justify-between items-center">
             <div className="text-left">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">Typing Test</h1>
@@ -154,13 +144,11 @@ const TestPage = () => {
             </div>
           </div>
           
-          {/* Level Selector */}
           <LevelSelector
             currentLevel={currentLevel}
             onLevelChange={handleLevelChange}
           />
           
-          {/* Test Settings */}
           {!isActive && !isComplete && (
             <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6 animate-fade-in">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -214,7 +202,6 @@ const TestPage = () => {
             </div>
           )}
           
-          {/* Test Area */}
           {(isActive || (!isActive && !isComplete)) && (
             <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6">
               <TypingText 
@@ -225,7 +212,6 @@ const TestPage = () => {
                 onKeyPress={handleKeyPress}
               />
               
-              {/* Keyboard Visualizer */}
               <KeyboardVisualizer currentKey={currentKey} />
               
               {!isActive && !isComplete && (
@@ -256,7 +242,6 @@ const TestPage = () => {
             </div>
           )}
           
-          {/* Results */}
           {isComplete && results && (
             <div className="bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg p-6">
               <ResultsDisplay 
@@ -269,7 +254,6 @@ const TestPage = () => {
             </div>
           )}
           
-          {/* Test Tips */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-card/30 backdrop-blur-sm border border-muted/20 rounded-lg p-4">
               <h3 className="font-medium text-lg mb-2">Posture</h3>

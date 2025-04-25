@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { keyboard } from 'lucide-react';
+import { Keyboard } from 'lucide-react';
 
 interface KeyProps {
   letter: string;
@@ -49,7 +49,7 @@ const KeyboardVisualizer = ({ currentKey }: { currentKey: string }) => {
   return (
     <div className="mt-8 p-4 bg-card/40 backdrop-blur-sm border border-muted/30 rounded-lg">
       <div className="flex items-center gap-2 mb-4">
-        <keyboard className="h-5 w-5 text-primary" />
+        <Keyboard className="h-5 w-5 text-primary" />
         <h3 className="font-medium">Keyboard Guide</h3>
       </div>
       
@@ -78,4 +78,3 @@ const KeyboardVisualizer = ({ currentKey }: { currentKey: string }) => {
 };
 
 export default KeyboardVisualizer;
-

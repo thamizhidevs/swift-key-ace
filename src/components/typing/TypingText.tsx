@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 
 interface TypingTextProps {
@@ -25,7 +26,7 @@ const TypingText = ({ text, isActive, onComplete, duration = 60, onKeyPress }: T
   useEffect(() => {
     const chars = text.split('').map((char, index) => ({
       char,
-      state: index === 0 ? 'current' : 'untyped',
+      state: index === 0 ? 'current' as const : 'untyped' as const,
     }));
     setCharacters(chars);
     setCurrentIndex(0);
