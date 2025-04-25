@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import TypingText from '@/components/typing/TypingText';
@@ -42,19 +43,21 @@ const TestPage = () => {
   const [currentLevel, setCurrentLevel] = useState<LevelType>('letters');
   const [isDarkMode, setIsDarkMode] = useState(true);
   
+  // Apply dark mode setting
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
   
+  // Initialize typing text
   useEffect(() => {
-    setTypingText(getRandomTypingText());
-  }, []);
+    setTypingText(getTextForLevel(currentLevel));
+  }, [currentLevel]);
   
   const handleStartTest = () => {
     setIsActive(true);
     setIsComplete(false);
     setResults(null);
-    setTypingText(getRandomTypingText());
+    setTypingText(getTextForLevel(currentLevel));
     
     toast.info(`${testDuration} second test started. Good luck!`);
   };
@@ -103,11 +106,13 @@ const TestPage = () => {
   const getTextForLevel = (level: LevelType): string => {
     switch (level) {
       case 'letters':
-        return 'asdfjkl; asdfjkl; asdfjkl; asdfjkl;';
+        return 'asdf jkl; asdf jkl; asdf jkl; asdf jkl; qwer uiop qwer uiop qwer uiop zxcv bnm, zxcv bnm,';
       case 'words':
-        return 'the quick brown fox jumps over the lazy dog';
+        return 'the quick brown fox jumps over the lazy dog. pack my box with five dozen liquor jugs. how vexingly quick daft zebras jump!';
+      case 'sentences':
+        return getRandomTypingText();
       case 'game':
-        return 'Type as fast as you can: "Race against time!"';
+        return 'Type as fast as you can: "The five boxing wizards jump quickly. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!"';
       default:
         return getRandomTypingText();
     }

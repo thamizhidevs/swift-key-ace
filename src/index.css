@@ -7,6 +7,38 @@
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 196 100% 50%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 25% 27%;
+
+    --accent: 276 91% 79%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 224 76.3% 48%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
@@ -34,8 +66,6 @@
     --border: 217 33% 25%;
     --input: 217 33% 25%;
     --ring: 224 76.3% 48%;
-
-    --radius: 0.5rem;
   }
 
   * {
@@ -104,6 +134,27 @@
     height: 100%;
     pointer-events: none;
     z-index: -1;
+  }
+  
+  /* Keyboard animation */
+  .keyboard-container {
+    perspective: 500px;
+  }
+  
+  .keyboard-container:hover {
+    transform: rotateX(10deg);
+    transition: transform 0.5s ease;
+  }
+  
+  /* Finger indicator animations */
+  @keyframes finger-pulse {
+    0% { opacity: 0.7; transform: scale(0.95) translateY(0); }
+    50% { opacity: 1; transform: scale(1.05) translateY(-2px); }
+    100% { opacity: 0.7; transform: scale(0.95) translateY(0); }
+  }
+  
+  .animate-finger-indicator {
+    animation: finger-pulse 1s infinite;
   }
 }
 
